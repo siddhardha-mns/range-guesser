@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Arena - Number Guessing Challenge</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a3a52 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 550px;
+            padding: 50px;
+            color: #1a1a1a;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f3460, #e94560);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-toggle {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, #0f3460, #e94560);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .admin-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .admin-panel.active {
+            display: flex;
+        }
+
+        .admin-content {
+            background: white;
+            padding: 45px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .admin-content h2 {
+            color: #0f3460;
+            margin-bottom: 25px;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .admin-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .admin-tab.active {
+            color: #0f3460;
+            border-bottom-color: #e94560;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Sora', sans-serif;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Sora', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0f3460, #e94560);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+            font-size: 12px;
+            padding: 8px 12px;
+            flex: 0 0 auto;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 199, 151, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .screen {
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        .team-grid,
+        .member-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .team-card,
+        .member-card {
+            padding: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card::before,
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(233, 69, 96, 0.1));
+            transition: left 0.3s;
+        }
+
+        .team-card:hover,
+        .member-card:hover {
+            border-color: #e94560;
+            background: linear-gradient(135deg, #fff8f9, #ffffff);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.15);
+        }
+
+        .team-card:hover::before,
+        .member-card:hover::before {
+            left: 100%;
+        }
+
+        .team-card.selected,
+        .member-card.selected {
+            border-color: #e94560;
+            background: linear-gradient(135deg, #0f3460, #e94560);
+            color: white;
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3);
+        }
+
+        .team-card h3,
+        .member-card h3 {
+            margin: 0;
+            color: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        .team-card p,
+        .member-card p {
+            margin: 6px 0 0 0;
+            font-size: 13px;
+            color: #666;
+            position: relative;
+            z-index: 2;
+        }
+
+        .team-card.selected p,
+        .member-card.selected p {
+            color: rgba(255, 255, 255, 0.85);
+        }
+
+        .game-info {
+            background: linear-gradient(135deg, #f0f7ff, #e8f5ff);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 4px solid #e94560;
+        }
+
+        .game-info p {
+            margin: 10px 0;
+            color: #333;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .game-info strong {
+            color: #e94560;
+            font-weight: 700;
+        }
+
+        .guess-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .guess-input-group input {
+            flex: 1;
+        }
+
+        .guess-input-group button {
+            flex: 0 0 auto;
+            width: 100px;
+        }
+
+        .results {
+            background: linear-gradient(135deg, #e8f5e9, #f1f8f5);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #28a745;
+            margin-bottom: 20px;
+        }
+
+        .results h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(40, 167, 69, 0.1);
+            font-size: 15px;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #555;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #0f3460;
+        }
+
+        .points-display {
+            font-size: 48px;
+            font-weight: 700;
+            color: #28a745;
+            text-align: center;
+            margin: 20px 0;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .error {
+            background: #ffe8e8;
+            color: #d32f2f;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #d32f2f;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2e7d32;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .already-played {
+            background: #fff3cd;
+            color: #856404;
+            padding: 16px;
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .results-table th {
+            background: #f5f5f5;
+            font-weight: 700;
+            color: #0f3460;
+        }
+
+        .results-table tr:hover {
+            background: #fafafa;
+        }
+
+        .logos-container {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .logos-container img {
+            height: 35px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .logos-container .devcatalyst-logo {
+            height: 150px; /* Doubled size */
+            filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.2)); /* Made it white */
+        }
+
+        .logos-container .cross {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="logos-container">
+        <img src="Screenshot_2026-05-03_at_12.32.21_PM-removebg-preview.png" alt="SummerSaaS Logo">
+        <span class="cross">×</span>
+        <img src="devcatalyst_transparent.png" alt="DevCatalyst Logo" class="devcatalyst-logo">
+    </div>
+
+    <button class="admin-toggle" onclick="toggleAdminPanel()">⚙️ Admin Panel</button>
+
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-content">
+            <h2>Admin Control Center</h2>
+
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchTab('settings')">Settings</button>
+                <button class="admin-tab" onclick="switchTab('teams')">Teams</button>
+                <button class="admin-tab" onclick="switchTab('results')">Results</button>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-content active" id="settingsTab">
+                <div class="form-group">
+                    <label for="presetNumber">🎯 Secret Number (1-50)</label>
+                    <input type="number" id="presetNumber" min="1" max="50" value="25" />
+                </div>
+
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-top: 20px;">
+                    <p style="color: #666; font-size: 13px; margin: 0;">Current Secret: <strong
+                            id="currentSecret">25</strong></p>
+                </div>
+            </div>
+
+            <!-- Teams Tab -->
+            <div class="tab-content" id="teamsTab">
+                <div class="form-group">
+                    <label for="addTeam">Add Team</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="teamName" placeholder="Team name" />
+                        <button class="btn-primary" onclick="addTeam()"
+                            style="flex: 0 0 auto; padding: 12px 20px;">Add</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Teams</label>
+                    <div id="teamsList" style="max-height: 300px; overflow-y: auto;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="selectedTeamForMembers">Add Members to Team</label>
+                    <select id="selectedTeamForMembers" onchange="updateMemberForm()">
+                        <option value="">Select a team...</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="memberFormGroup" style="display: none;">
+                    <label for="memberName">Member Name</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="memberName" placeholder="Member name" />
+                        <button class="btn-primary" onclick="addMember()"
+                            style="flex: 0 0 auto; padding: 12px 20px;">Add</button>
+                    </div>
+                </div>
+
+                <div id="membersList" style="max-height: 200px; overflow-y: auto; margin-bottom: 20px;"></div>
+            </div>
+
+            <!-- Results Tab -->
+            <div class="tab-content" id="resultsTab">
+                <div style="margin-bottom: 20px;">
+                    <button class="btn-success" onclick="downloadCSV()" style="width: 100%; padding: 13px;">📥 Download
+                        Results (CSV)</button>
+                </div>
+                <div id="resultsTable"></div>
+            </div>
+
+            <div class="button-group" style="margin-top: 30px;">
+                <button class="btn-secondary" onclick="toggleAdminPanel()">Close</button>
+                <button class="btn-primary" onclick="saveAdminData()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Login Screen -->
+        <div class="screen" id="loginScreen">
+            <div class="header">
+                <h1>🎯 Number Game</h1>
+                <p>Login to start playing</p>
+            </div>
+            <div class="form-group">
+                <label for="gidInput">Enter your GID</label>
+                <input type="text" id="gidInput" placeholder="Your Group ID" />
+            </div>
+            <button class="btn-primary" onclick="loginWithGID()"
+                style="width: 100%; padding: 12px; margin-top: 20px;">Login</button>
+            <div id="loginError" class="hidden error" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Team Selection Screen -->
+        <div class="screen hidden" id="teamScreen">
+            <div class="header">
+                <h1>Welcome!</h1>
+                <p id="welcomeMessage"></p>
+            </div>
+            <div class="form-group">
+                <label>Select your team</label>
+                <div class="team-grid" id="teamGrid"></div>
+            </div>
+            <button class="btn-secondary" onclick="logout()"
+                style="width: 100%; padding: 12px; margin-top: 20px;">Logout</button>
+        </div>
+
+        <!-- Member Selection Screen -->
+        <div class="screen hidden" id="memberScreen">
+            <div class="header">
+                <h1 id="teamNameDisplay"></h1>
+                <p>Select a team member</p>
+            </div>
+            <div class="form-group">
+                <div class="member-grid" id="memberGrid"></div>
+            </div>
+            <button class="btn-secondary" onclick="backToTeams()"
+                style="width: 100%; padding: 12px; margin-top: 20px;">Back to Teams</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="screen hidden" id="gameScreen">
+            <div class="header">
+                <h1>🎮 Guess the Number</h1>
+                <p id="playerDisplay"></p>
+            </div>
+
+            <div id="alreadyPlayedMessage" class="already-played hidden">
+                ⏱️ You've already played this game!
+            </div>
+
+            <div class="game-info">
+                <p>Guess a number between <strong>1</strong> and <strong>50</strong></p>
+                <p>The closer you are, the more points you earn!</p>
+                <p style="font-size: 13px; color: #555; margin-top: 12px;">🏆 Points range: <strong>15 - 20</strong></p>
+            </div>
+
+            <div id="gameResult" class="hidden"></div>
+
+            <div id="gameInput" class="guess-input-group">
+                <input type="number" id="numberGuess" min="1" max="50" placeholder="Enter your guess" />
+                <button class="btn-primary" onclick="submitGuess()">Guess</button>
+            </div>
+
+            <button class="btn-secondary" onclick="backToMembers()" style="width: 100%; padding: 13px;">↙️ Play
+                Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game Data Structure
+        let gameData = {
+            presetNumber: 25,
+            teams: [
+                { id: 1, name: "Alpha Team", members: ["Alice", "Bob"] },
+                { id: 2, name: "Beta Team", members: ["Charlie", "Diana"] },
+                { id: 3, name: "Gamma Team", members: ["Eve", "Frank"] }
+            ],
+            results: []
+        };
+
+        let gameState = {
+            gid: null,
+            selectedTeam: null,
+            selectedMember: null,
+            gameStarted: false,
+            guess: null,
+            points: null
+        };
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            loadGameData();
+            renderTeamsInAdmin();
+            updateCurrentSecretDisplay();
+        });
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Refresh results table if switching to results tab
+            if (tabName === 'results') {
+                renderResultsTable();
+            }
+        }
+
+        function toggleAdminPanel() {
+            const panel = document.getElementById('adminPanel');
+            
+            if (!panel.classList.contains('active')) {
+                const password = prompt('Enter Admin Password:');
+                if (password !== 'admin123') { // Simple default password
+                    alert('Incorrect password!');
+                    return;
+                }
+            }
+            
+            panel.classList.toggle('active');
+        }
+
+        function loadGameData() {
+            const saved = localStorage.getItem('gameData');
+            if (saved) {
+                gameData = JSON.parse(saved);
+            }
+        }
+
+        function saveAdminData() {
+            const presetNumber = parseInt(document.getElementById('presetNumber').value);
+            if (presetNumber < 1 || presetNumber > 50) {
+                alert('Please enter a number between 1 and 50');
+                return;
+            }
+            gameData.presetNumber = presetNumber;
+            localStorage.setItem('gameData', JSON.stringify(gameData));
+            updateCurrentSecretDisplay();
+            toggleAdminPanel();
+            alert('✅ Admin data saved successfully!');
+        }
+
+        function updateCurrentSecretDisplay() {
+            document.getElementById('currentSecret').textContent = gameData.presetNumber;
+            document.getElementById('presetNumber').value = gameData.presetNumber;
+        }
+
+        function addTeam() {
+            const teamName = document.getElementById('teamName').value.trim();
+            if (!teamName) {
+                alert('Please enter a team name');
+                return;
+            }
+
+            const newTeam = {
+                id: gameData.teams.length + 1,
+                name: teamName,
+                members: []
+            };
+
+            gameData.teams.push(newTeam);
+            document.getElementById('teamName').value = '';
+            renderTeamsInAdmin();
+            updateTeamSelect();
+        }
+
+        function renderTeamsInAdmin() {
+            const teamsList = document.getElementById('teamsList');
+            teamsList.innerHTML = '';
+
+            gameData.teams.forEach((team, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'padding: 12px; background: #f5f5f5; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;';
+                div.innerHTML = `
+                <span style="font-weight: 500;">${team.name}</span>
+                <button class="btn-danger" onclick="deleteTeam(${index})">Delete</button>
+            `;
+                teamsList.appendChild(div);
+            });
+        }
+
+        function deleteTeam(index) {
+            if (confirm('Are you sure you want to delete this team?')) {
+                gameData.teams.splice(index, 1);
+                renderTeamsInAdmin();
+                updateTeamSelect();
+            }
+        }
+
+        function updateTeamSelect() {
+            const select = document.getElementById('selectedTeamForMembers');
+            select.innerHTML = '<option value="">Select a team...</option>';
+            gameData.teams.forEach(team => {
+                const option = document.createElement('option');
+                option.value = team.id;
+                option.textContent = team.name;
+                select.appendChild(option);
+            });
+        }
+
+        function updateMemberForm() {
+            const teamId = document.getElementById('selectedTeamForMembers').value;
+            const memberFormGroup = document.getElementById('memberFormGroup');
+            if (teamId) {
+                memberFormGroup.style.display = 'block';
+                renderMembersInAdmin();
+            } else {
+                memberFormGroup.style.display = 'none';
+                document.getElementById('membersList').innerHTML = '';
+            }
+        }
+
+        function addMember() {
+            const teamId = document.getElementById('selectedTeamForMembers').value;
+            const memberName = document.getElementById('memberName').value.trim();
+
+            if (!teamId || !memberName) {
+                alert('Please select a team and enter a member name');
+                return;
+            }
+
+            const team = gameData.teams.find(t => t.id == teamId);
+            if (team) {
+                team.members.push(memberName);
+                document.getElementById('memberName').value = '';
+                renderMembersInAdmin();
+            }
+        }
+
+        function renderMembersInAdmin() {
+            const teamId = document.getElementById('selectedTeamForMembers').value;
+            const team = gameData.teams.find(t => t.id == teamId);
+            const membersList = document.getElementById('membersList');
+            membersList.innerHTML = '';
+
+            if (team) {
+                team.members.forEach((member, index) => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'padding: 12px; background: #f5f5f5; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;';
+                    div.innerHTML = `
+                    <span style="font-weight: 500;">${member}</span>
+                    <button class="btn-danger" onclick="deleteMember(${teamId}, ${index})">Remove</button>
+                `;
+                    membersList.appendChild(div);
+                });
+            }
+        }
+
+        function deleteMember(teamId, index) {
+            const team = gameData.teams.find(t => t.id == teamId);
+            if (team) {
+                team.members.splice(index, 1);
+                renderMembersInAdmin();
+            }
+        }
+
+        function renderResultsTable() {
+            const resultsDiv = document.getElementById('resultsTable');
+
+            if (gameData.results.length === 0) {
+                resultsDiv.innerHTML = '<p style="text-align: center; color: #999; padding: 30px;">No results yet</p>';
+                return;
+            }
+
+            let html = '<table class="results-table"><thead><tr><th>GID</th><th>Team</th><th>Member</th><th>Guess</th><th>Points</th><th>Date</th></tr></thead><tbody>';
+
+            gameData.results.forEach(result => {
+                const date = new Date(result.timestamp).toLocaleDateString();
+                html += `<tr>
+                <td>${result.gid}</td>
+                <td>${result.teamName}</td>
+                <td>${result.memberName}</td>
+                <td>${result.guess}</td>
+                <td style="font-weight: 700; color: #28a745;">${result.points}</td>
+                <td>${date}</td>
+            </tr>`;
+            });
+
+            html += '</tbody></table>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function downloadCSV() {
+            if (gameData.results.length === 0) {
+                alert('No results to download');
+                return;
+            }
+
+            let csv = 'GID,Team,Member,Guess,Secret Number,Distance,Points,Timestamp\n';
+
+            gameData.results.forEach(result => {
+                const date = new Date(result.timestamp).toLocaleString();
+                csv += `"${result.gid}","${result.teamName}","${result.memberName}",${result.guess},${result.secretNumber},${result.distance},${result.points},"${date}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `game_results_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function hasPlayerAlreadyPlayed() {
+            const playerKey = `${gameState.gid}-${gameState.selectedTeam.id}-${gameState.selectedMember}`;
+            return gameData.results.some(result =>
+                `${result.gid}-${result.teamId}-${result.memberName}` === playerKey
+            );
+        }
+
+        function loginWithGID() {
+            const gid = document.getElementById('gidInput').value.trim();
+            const errorDiv = document.getElementById('loginError');
+
+            if (!gid) {
+                errorDiv.textContent = 'Please enter your GID';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            gameState.gid = gid;
+            gameState.selectedTeam = null;
+            gameState.selectedMember = null;
+            errorDiv.classList.add('hidden');
+
+            showTeamScreen();
+        }
+
+        function showTeamScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('teamScreen').classList.remove('hidden');
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${gameState.gid}!`;
+            renderTeams();
+        }
+
+        function renderTeams() {
+            const teamGrid = document.getElementById('teamGrid');
+            teamGrid.innerHTML = '';
+
+            gameData.teams.forEach(team => {
+                const card = document.createElement('div');
+                card.className = 'team-card';
+                card.innerHTML = `
+                <h3>${team.name}</h3>
+                <p>${team.members.length} members</p>
+            `;
+                card.onclick = () => selectTeam(team);
+                teamGrid.appendChild(card);
+            });
+        }
+
+        function selectTeam(team) {
+            if (team.members.length === 0) {
+                alert('This team has no members');
+                return;
+            }
+
+            gameState.selectedTeam = team;
+            showMemberScreen();
+        }
+
+        function showMemberScreen() {
+            document.getElementById('teamScreen').classList.add('hidden');
+            document.getElementById('memberScreen').classList.remove('hidden');
+            document.getElementById('teamNameDisplay').textContent = gameState.selectedTeam.name;
+            renderMembers();
+        }
+
+        function renderMembers() {
+            const memberGrid = document.getElementById('memberGrid');
+            memberGrid.innerHTML = '';
+
+            gameState.selectedTeam.members.forEach(member => {
+                const card = document.createElement('div');
+                card.className = 'member-card';
+                card.innerHTML = `<h3>${member}</h3>`;
+                card.onclick = () => selectMember(member);
+                memberGrid.appendChild(card);
+            });
+        }
+
+        function selectMember(member) {
+            gameState.selectedMember = member;
+            gameState.gameStarted = false;
+            gameState.guess = null;
+            gameState.points = null;
+            showGameScreen();
+        }
+
+        function showGameScreen() {
+            document.getElementById('memberScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('playerDisplay').textContent = `${gameState.selectedMember} (${gameState.selectedTeam.name})`;
+            document.getElementById('gameResult').classList.add('hidden');
+            document.getElementById('gameInput').classList.remove('hidden');
+            document.getElementById('numberGuess').value = '';
+
+            const alreadyPlayedDiv = document.getElementById('alreadyPlayedMessage');
+
+            if (hasPlayerAlreadyPlayed()) {
+                alreadyPlayedDiv.classList.remove('hidden');
+                document.getElementById('gameInput').classList.add('hidden');
+                document.getElementById('numberGuess').disabled = true;
+            } else {
+                alreadyPlayedDiv.classList.add('hidden');
+                document.getElementById('numberGuess').disabled = false;
+                document.getElementById('numberGuess').focus();
+            }
+        }
+
+        function submitGuess() {
+            if (hasPlayerAlreadyPlayed()) {
+                alert('You have already played this game!');
+                return;
+            }
+
+            const guess = parseInt(document.getElementById('numberGuess').value);
+
+            if (isNaN(guess) || guess < 1 || guess > 50) {
+                alert('Please enter a number between 1 and 50');
+                return;
+            }
+
+            gameState.guess = guess;
+            gameState.gameStarted = true;
+
+            const diff = Math.abs(guess - gameData.presetNumber);
+            let points = 20 - (diff * 5 / 50);
+            points = Math.max(15, Math.round(points * 100) / 100);
+
+            gameState.points = points;
+
+            // Save result
+            gameData.results.push({
+                gid: gameState.gid,
+                teamId: gameState.selectedTeam.id,
+                teamName: gameState.selectedTeam.name,
+                memberName: gameState.selectedMember,
+                guess: guess,
+                secretNumber: gameData.presetNumber,
+                distance: diff,
+                points: points,
+                timestamp: new Date().toISOString()
+            });
+
+            localStorage.setItem('gameData', JSON.stringify(gameData));
+            showGameResult();
+        }
+
+        function showGameResult() {
+            const resultDiv = document.getElementById('gameResult');
+            const isCorrect = gameState.guess === gameData.presetNumber;
+            const diff = Math.abs(gameState.guess - gameData.presetNumber);
+
+            resultDiv.innerHTML = `
+            <div class="results">
+                <h3>${isCorrect ? '🎉 Perfect Guess!' : '✅ Game Over'}</h3>
+                <div class="result-item">
+                    <span class="result-label">Your guess:</span>
+                    <span class="result-value">${gameState.guess}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Secret number:</span>
+                    <span class="result-value">${gameData.presetNumber}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Distance:</span>
+                    <span class="result-value">${diff}</span>
+                </div>
+                <div class="points-display">${gameState.points.toFixed(1)}</div>
+                <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(40, 167, 69, 0.2); font-size: 14px; color: #555;">
+                    💾 Result saved successfully!
+                </div>
+            </div>
+        `;
+
+            resultDiv.classList.remove('hidden');
+            document.getElementById('gameInput').classList.add('hidden');
+        }
+
+        function backToMembers() {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('memberScreen').classList.remove('hidden');
+        }
+
+        function backToTeams() {
+            document.getElementById('memberScreen').classList.add('hidden');
+            document.getElementById('teamScreen').classList.remove('hidden');
+        }
+
+        function logout() {
+            gameState = {
+                gid: null,
+                selectedTeam: null,
+                selectedMember: null,
+                gameStarted: false,
+                guess: null,
+                points: null
+            };
+            document.getElementById('teamScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('gidInput').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+        }
+    </script>
+
+</body>
+
+</html>
